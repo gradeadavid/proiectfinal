@@ -1,6 +1,5 @@
-"""Web interface for the Startup Mentor Agent.
-
-
+"""
+Web interface for the Startup Mentor Agent.
 """
 
 import json
