@@ -70,8 +70,7 @@ Creează un fișier `.env` în rădăcina proiectului (nu îl comite în Git —
 - `EMBEDDINGS_ENDPOINT` — endpoint pentru generarea embeddings-urilor;
   implicit `http://localhost:11434/api/embeddings` (compatibil Ollama).
 - `FLASK_SECRET_KEY` — cheia de sesiune Flask, folosită de `webapp/app.py`
-  (dacă lipsește, se generează una aleatoare la fiecare pornire, ceea ce
-  invalidează sesiunile existente la restart).
+  (dacă lipsește, se generează una aleatoare la fiecare pornire).
 
 Modelele folosite (`MODEL_NAME`, `SUMMARY_MODEL_NAME`, `EMBEDDINGS_MODEL`) și
 prețurile per milion de tokeni sunt hardcodate în `config.py`.
