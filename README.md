@@ -89,7 +89,7 @@ Web app:
 python webapp/app.py
 ```
 
-La pornire, ambele interfețe (re)generează embeddings pentru documentele din
+La pornire, ambele interfețe generează embeddings pentru documentele din
 `knowledge/` și salvează rezultatul în `embeddings.json`.
 
 ## Teste
