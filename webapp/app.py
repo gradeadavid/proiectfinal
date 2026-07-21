@@ -1,8 +1,6 @@
 """Web interface for the Startup Mentor Agent.
 
-Users identify themselves with just an email (no password) and get a
-ChatGPT-style sidebar of their own separate conversations, each backed by
-the same Agent used by the CLI (main.py). Run with: python webapp/app.py
+
 """
 
 import json
@@ -14,9 +12,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# These imports must come after the sys.path.insert above, since several
-# of them (user_store, agent, llm_client, ...) live outside webapp/ and
-# are only importable once the parent directory is on sys.path.
 from flask import (  # noqa: E402
     Flask, Response, render_template, request, redirect, url_for, session
 )
