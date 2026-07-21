@@ -47,7 +47,7 @@ pip install -r requirements.txt
 
 Generarea embeddings-urilor (RAG) folosește implicit un server **Ollama** local,
 prin `EMBEDDINGS_ENDPOINT` (`http://localhost:11434/api/embeddings`) și modelul
-`EMBEDDINGS_MODEL` (`qwen3-embedding:8b`, hardcodat în `config.py`). Înainte de
+`EMBEDDINGS_MODEL` (`qwen3-embedding:8b`,în `config.py`). Înainte de
 prima rulare:
 
 1. Instalează Ollama de pe [ollama.com](https://ollama.com).
