@@ -1,81 +1,109 @@
 # Startup Mentor Agent
 
-Agent conversațional (Python) pentru sprijinirea deciziilor de produs și business,
-cu acces la o bază de cunoștințe proprie (RAG) și la tool-uri de analiză. Expune
-două interfețe care rulează peste același `Agent`: un CLI (`main.py`) și o
-aplicație web Flask (`webapp/app.py`).
+A conversational agent (Python) for supporting product and business decisions,
+with access to its own knowledge base (RAG) and analysis tools. It exposes
+two interfaces running on top of the same `Agent`: a CLI (`main.py`) and a
+Flask web app (`webapp/app.py`).
 
-## Funcționalități
+## Features
 
-- **CLI** (`main.py`) — conversație în terminal; după fiecare răspuns afișează
-  statistici de tokeni și o estimare de cost.
-- **Web app** (`webapp/app.py`) — interfață tip ChatGPT, cu autentificare doar pe
-  bază de email (fără parolă). Fiecare utilizator are propriile conversații,
-  salvate ca fișiere JSON în `webapp/data/`, cu opțiuni de redenumire, ștergere,
-  export și import.
+- **CLI** (`main.py`) — terminal conversation; after each response it shows
+  token statistics and a cost estimate.
+- **Web app** (`webapp/app.py`) — ChatGPT-style interface, with email-only
+  authentication (no password). Each user has their own conversations,
+  saved as JSON files in `webapp/data/`, with options to rename, delete,
+  export, and import.
 - **RAG / Embeddings** (`knowledge/`, `document_chunker.py`,
-  `embedding_generator.py`, `embeddings_client.py`) — documentele din
-  `knowledge/` sunt împărțite în chunk-uri, transformate în embeddings și
-  cache-uite incremental în `embeddings.json` (se regenerează doar ce s-a
-  schimbat).
-- **Tool-uri** (`tools/`) — descoperite automat și puse la dispoziția modelului:
+  `embedding_generator.py`, `embeddings_client.py`) — documents in
+  `knowledge/` are split into chunks, converted into embeddings, and
+  cached incrementally in `embeddings.json` (only changed content is
+  regenerated).
+- **Tools** (`tools/`) — automatically discovered and made available to the model:
 
 
-## Arhitectură (schematic)
+## Architecture (overview)
 
-- `agent.py` — orchestrare: caută context relevant prin RAG, gestionează
-  compresia conversației (sumarizare când se depășește `MAX_CONTEXT_TOKENS`),
-  alege modelul și rulează buclă de tool-calling.
-- `llm_client.py` — client OpenAI-compatible (librăria `openai`), configurat
-  prin `AZURE_ENDPOINT`/`API_KEY`.
-- `conversation_context.py` — istoric conversație, sumarizare, tracking
-  tokeni/cost.
+- `agent.py` — orchestration: retrieves relevant context via RAG, handles
+  conversation compression (summarization when `MAX_CONTEXT_TOKENS` is
+  exceeded), selects the model, and runs the tool-calling loop.
+- `llm_client.py` — OpenAI-compatible client (`openai` library), configured
+  via `AZURE_ENDPOINT`/`API_KEY`.
+- `conversation_context.py` — conversation history, summarization, token/cost
+  tracking.
 - `document_chunker.py`, `embedding_generator.py`, `embeddings_client.py` —
-  chunk-uire, generare și căutare semantică pe embeddings.
-- `tools/` — tool-uri Python apelabile de agent, plus infrastructura de
-  descoperire (`tool.py`, `tools.py`).
-- `webapp/` — aplicația Flask: `app.py` (rute), `user_store.py` (persistență
-  conversații per utilizator în `webapp/data/`), `templates/`, `static/`.
+  chunking, generation, and semantic search over embeddings.
+- `tools/` — Python tools callable by the agent, plus the discovery
+  infrastructure (`tool.py`, `tools.py`).
+- `webapp/` — the Flask application: `app.py` (routes), `user_store.py`
+  (per-user conversation persistence in `webapp/data/`), `templates/`,
+  `static/`.
 
-## Instalare
+## Installation
+
+1. Create and activate a Python virtual environment in the project directory:
+
+```bash
+python -m venv .venv
+```
+
+PowerShell:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+CMD:
+
+```batch
+.\.venv\Scripts\activate.bat
+```
+
+If PowerShell blocks scripts due to the execution policy, use CMD or run:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+2. Install the dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Prerequisite: Ollama (pentru embeddings)
+### Prerequisite: Ollama (for embeddings)
 
-Generarea embeddings-urilor (RAG) folosește implicit un server **Ollama** local,
-prin `EMBEDDINGS_ENDPOINT` (`http://localhost:11434/api/embeddings`) și modelul
-`EMBEDDINGS_MODEL` (`qwen3-embedding:8b`,în `config.py`). Înainte de
-prima rulare:
+Embedding generation (RAG) uses a local **Ollama** server by default,
+via `EMBEDDINGS_ENDPOINT` (`http://localhost:11434/api/embeddings`) and the
+`EMBEDDINGS_MODEL` model (`qwen3-embedding:8b`, hardcoded in `config.py`).
+Before the first run:
 
-1. Instalează Ollama de pe [ollama.com](https://ollama.com).
-2. Descarcă modelul de embeddings:
+1. Install Ollama from [ollama.com](https://ollama.com).
+2. Pull the embeddings model:
    ```bash
    ollama pull qwen3-embedding:8b
    ```
-3. Asigură-te că Ollama rulează (implicit ascultă pe portul `11434`).
+3. Make sure Ollama is running (it listens on port `11434` by default).
 
-Fără acești pași, `main.py`/`webapp/app.py` vor eșua la generarea embeddings-urilor
-cu o eroare de conexiune sau model inexistent.
+Without these steps, `main.py`/`webapp/app.py` will fail to generate
+embeddings with a connection error or a "model not found" error.
 
-## Configurare variabile de mediu
+## Environment variable configuration
 
-Creează un fișier `.env` în rădăcina proiectului (nu îl comite în Git — e deja
-în `.gitignore`). Variabile citite din `config.py`:
+Create a `.env` file in the project root (do not commit it to Git — it is
+already in `.gitignore`). Variables read from `config.py`:
 
-- `AZURE_ENDPOINT` — endpoint OpenAI-compatible pentru modelul de chat 
-- `API_KEY` — cheia API pentru acel endpoint.
-- `EMBEDDINGS_ENDPOINT` — endpoint pentru generarea embeddings-urilor;
-  implicit `http://localhost:11434/api/embeddings` (compatibil Ollama).
-- `FLASK_SECRET_KEY` — cheia de sesiune Flask, folosită de `webapp/app.py`
-  (dacă lipsește, se generează una aleatoare la fiecare pornire).
+- `AZURE_ENDPOINT` — OpenAI-compatible endpoint for the chat model.
+- `API_KEY` — the API key for that endpoint.
+- `EMBEDDINGS_ENDPOINT` — endpoint for generating embeddings;
+  defaults to `http://localhost:11434/api/embeddings` (Ollama-compatible).
+- `FLASK_SECRET_KEY` — Flask session key, used by `webapp/app.py`
+  (if missing, a random one is generated on every startup, which
+  invalidates existing sessions on restart).
 
-Modelele folosite (`MODEL_NAME`, `SUMMARY_MODEL_NAME`, `EMBEDDINGS_MODEL`) și
-prețurile per milion de tokeni sunt hardcodate în `config.py`.
+The models used (`MODEL_NAME`, `SUMMARY_MODEL_NAME`, `EMBEDDINGS_MODEL`) and
+the prices per million tokens are hardcoded in `config.py`.
 
-## Rulare
+## Running
 
 CLI:
 
@@ -89,20 +117,20 @@ Web app:
 python webapp/app.py
 ```
 
-La pornire, ambele interfețe generează embeddings pentru documentele din
-`knowledge/` și salvează rezultatul în `embeddings.json`.
+On startup, both interfaces (re)generate embeddings for the documents in
+`knowledge/` and save the result to `embeddings.json`.
 
-## Teste
+## Tests
 
 ```bash
 pytest
 ```
 
-Acoperire curentă: `tests/test_embeddings_client.py`.
+Current coverage: `tests/test_embeddings_client.py`.
 
-## Note
+## Notes
 
-- `embeddings.json` și `webapp/data/` sunt cache/date locale, excluse din Git
-  (vezi `.gitignore`).
-- Nivelul de log implicit este `DEBUG` (configurat în `main.py` /
-  `webapp/app.py`)
+- `embeddings.json` and `webapp/data/` are local cache/data, excluded from
+  Git (see `.gitignore`).
+- The default log level is `DEBUG` (configured in `main.py` /
+  `webapp/app.py`).
