@@ -1,0 +1,8 @@
+[
+  {
+    "id": "identity",
+    "name": "Agent Identity",
+    "description": "Core identity, personality, tool-usage rules, and scope boundaries for the Startup Mentor Agent",
+    "always_load": true
+  }
+]

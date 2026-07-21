@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <title>Startup Mentor - Chat</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <a href="{{ url_for('new_chat') }}" class="new-chat-btn">+ Conversatie noua</a>
+
+            <form method="post" action="{{ url_for('import_chat') }}" enctype="multipart/form-data" class="import-form">
+                <label class="import-label" for="import-file">Importa conversatie (.json)</label>
+                <input type="file" id="import-file" name="file" accept="application/json" onchange="this.form.submit()">
+            </form>
+
+            <div class="conversation-list">
+                {% for conv in conversations %}
+                    <div class="conversation-item-wrap {{ 'active' if conv.id == active_id else '' }}" id="conv-{{ conv.id }}">
+                        <a href="{{ url_for('chat_get', conversation_id=conv.id) }}" class="conversation-item">
+                            {{ conv.title }}
+                        </a>
+
+                        <form method="post" action="{{ url_for('rename_chat', conversation_id=conv.id) }}"
+                              class="rename-form" style="display:none;">
+                            <input type="text" name="title" value="{{ conv.title }}" maxlength="40"
+                                   class="rename-input" onblur="cancelRename('{{ conv.id }}')"
+                                   onkeydown="if(event.key==='Escape') cancelRename('{{ conv.id }}')">
+                        </form>
+
+                        <div class="conv-actions">
+                            <button type="button" class="icon-btn" title="Redenumeste"
+                                    onclick="startRename('{{ conv.id }}')">&#9998;</button>
+                            <a class="icon-btn" title="Exporta"
+                               href="{{ url_for('export_chat', conversation_id=conv.id) }}">&#11015;</a>
+                            <form method="post" action="{{ url_for('delete_chat', conversation_id=conv.id) }}"
+                                  class="delete-form" onsubmit="return confirm('Stergi aceasta conversatie?');">
+                                <button type="submit" class="icon-btn" title="Sterge">&#128465;</button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="empty-state-small">Nicio conversatie inca.</p>
+                {% endfor %}
+            </div>
+
+            <div class="sidebar-footer">
+                <span>{{ email }}</span>
+                <a href="{{ url_for('logout') }}">Delogare</a>
+            </div>
+        </aside>
+
+        <main class="chat-main">
+            <div class="messages" id="messages">
+                {% for message in messages %}
+                    <div class="message {{ message.role }}">
+                        <div class="bubble-wrap">
+                            <div class="bubble">{{ message.content }}</div>
+                            <div class="token-count">
+                                {{ message.tokens }} tokens{% if message.response_time is defined %} · {{ message.response_time }}s{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="empty-state">Conversatie noua. Scrie primul mesaj mai jos.</p>
+                {% endfor %}
+            </div>
+
+            <form method="post"
+                  action="{{ url_for('chat_post', conversation_id=active_id) if active_id else url_for('new_chat_post') }}"
+                  class="composer">
+                <input type="text" name="message" placeholder="Scrie un mesaj..." required autofocus autocomplete="off">
+                <button type="submit">Trimite</button>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        const messages = document.getElementById("messages");
+        messages.scrollTop = messages.scrollHeight;
+
+        const composer = document.querySelector(".composer");
+        composer.addEventListener("submit", function () {
+            const input = composer.querySelector('input[name="message"]');
+            const button = composer.querySelector('button[type="submit"]');
+            if (!input.value.trim()) return;
+
+            input.readOnly = true;
+            button.textContent = "Se trimite...";
+            setTimeout(function () { button.disabled = true; }, 0);
+
+            const typing = document.createElement("div");
+            typing.className = "message assistant";
+            typing.innerHTML = '<div class="bubble typing-bubble"><span></span><span></span><span></span></div>';
+            messages.appendChild(typing);
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+        function startRename(id) {
+            const wrap = document.getElementById("conv-" + id);
+            wrap.querySelector(".conversation-item").style.display = "none";
+            wrap.querySelector(".conv-actions").style.display = "none";
+            const form = wrap.querySelector(".rename-form");
+            form.style.display = "flex";
+            const input = form.querySelector(".rename-input");
+            input.focus();
+            input.select();
+        }
+
+        function cancelRename(id) {
+            const wrap = document.getElementById("conv-" + id);
+            wrap.querySelector(".conversation-item").style.display = "";
+            wrap.querySelector(".conv-actions").style.display = "";
+            wrap.querySelector(".rename-form").style.display = "none";
+        }
+    </script>
+</body>
+</html>

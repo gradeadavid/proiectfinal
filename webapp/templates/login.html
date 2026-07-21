@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8">
+    <title>Startup Mentor - Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Startup Mentor AI</h1>
+        <p class="subtitle">Introdu email-ul tau pentru a incepe sau continua o conversatie.</p>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="post" action="{{ url_for('login') }}">
+            <input type="email" name="email" placeholder="nume@exemplu.com" required autofocus>
+            <button type="submit">Intra</button>
+        </form>
+    </div>
+</body>
+</html>

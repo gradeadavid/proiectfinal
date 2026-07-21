@@ -1,0 +1,14 @@
+[
+  {
+    "id": "startup_frameworks",
+    "name": "Startup Frameworks Reference",
+    "description": "Common startup frameworks (Lean Canvas, AARRR, SWOT, ICE/RICE, fundraising stages) for structuring advice",
+    "always_load": true
+  },
+  {
+    "id": "company_facts",
+    "name": "Company Facts",
+    "description": "Core facts about the Startup Founder Platform: mission, values, services offered, target audience, key metrics, and contact information",
+    "always_load": true
+  }
+]

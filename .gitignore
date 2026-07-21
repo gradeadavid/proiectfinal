@@ -1,0 +1,11 @@
+.env
+.env.local
+.env.*local
+webapp/data/
+
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.coverage
+embeddings.json
